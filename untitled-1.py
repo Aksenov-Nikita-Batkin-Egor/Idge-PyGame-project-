@@ -46,7 +46,7 @@ class Labyrinth:
             for dx, dy in (1, 0), (0, 1), (-1, 0), (0, -1):
                 next_x, next_y = x + dx, y + dy
                 if 0 <= next_x < self.width and 0 <= next_y < self.height and \
-                    self.is_free((next_x, next_y)) and distance[next_y][next[x]] == INF:
+                   self.is_free((next_x, next_y)) and distance[next_y][next_x] == INF:
                     distance[next_y][next_x] = distance[y][x] + 1
                     prev[next_y][next_x] = (x, y)
                     queue.append((next_x, next_y))
