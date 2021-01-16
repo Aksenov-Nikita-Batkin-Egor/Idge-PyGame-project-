@@ -5,57 +5,64 @@ import time
 
 class Background(pygame.sprite.Sprite):
     def __init__(self, image_file, location):
-        pygame.sprite.Sprite.__init__(self)
+        super().__init__()
         self.image = pygame.image.load(image_file)
         self.rect = (self.image.get_rect())
         self.rect.left, self.rect.top = location
 
 
 class Level1:
-    def __init__(self, width, height, score):
+    def __init__(self, width, height, screen, score):
+        self.screen = screen
         self.WIDTH = width
         self.HEIGHT = height
         self.BLACK = (0, 0, 0)
         self.FPS = 30
         self.frase = 0
         self.score = score
-        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        self.choice = 0
         self.clock = pygame.time.Clock()
-        self.running = True
-        self.start = True
 
         self.text_lvl_1 = ['противник*=)*Делить на ноль можно.',
-                           'игрок*=)*1 - Согласен / 2 - Нельзя',
-                           'противник*=)*1 - Что ж, ты проиграл / 2 - Нет, можно',
+                           'игрок*=)*1 - Согласен. / 2 - Нельзя.',
+                           'противник*=)*Что ж, ты проиграл.%/%Нет, можно.',
                            'игрок*=(*Дурак! Нельзя!',
                            'противник*=)*Интересно, почему? 6 % 3 = 2; 6 % 1 = 6; 6 % 0.0001 = 60000. '
                            'Чем меньше делитель, тем больше будет частное. Ну, что скажешь?',
-                           'игрок*=)*1 - Выучил правило из 5 класса и крутой? / 2 - Рассказать правило',
+                           'игрок*=)*1 - Выучил правило из 5 класса и крутой? / 2 - Рассказать правило.',
                            'противник*=)*Ясно. Давно стал очевиден один факт.',
                            '...',
                            'противник*=)*Ты так думаешь лишь потому, что тебе так сказали. '
                            'Своей головой ты думать видимо не можешь. Ты же знаешь, что если '
                            'любое число разделить на себя, то получится единица? Следовательно: 0 / 0 = 1.',
                            'игрок*=(*Единица - твоя оценка по матеше.',
-                           '',
-                           '',
-                           '']
-        self.SCORES = {
-            0: [None, None, None, None],
-            1: [0, 0, None, None],
-            2: [0, 0, None, None],
-            3: [None, None, None, None],
-            4: [None, None, None, None],
-            5: [None, None, None, None],
-            6: [0, 0, None, None],
-            7: [None, None, None, None],
-            8: [None, None, None, None],
-            9: [None, None, None, None],
-        }
+                           'игрок*=(*1 - Привести пример. / 2 - Сказать правило',
+                           'игрок*=(*Так, придётся на яблоках объяснять. Итак, у тебя есть 10 яблок и 5 друзей. '
+                           'Ты такой крутой даёшь каждому по 2 яблока, чтобы было поровну. '
+                           'Ты 10 / 5 и получаешь два. Вот для тебя задачка: '
+                           'сколько будет у тебя друзей, если яблок 0?%/%(Рассказываю правило...)',
+                           'противник*=)*Нуууу... 10%/%Ну и что. Ты просто повторяешься.',
+                           'игрок*=)*Ты меня просто вымораживаешь своей тупостью.']
+        self.SCORES = [
+            [0, None, None, None, None],
+            [0, None, None, None, None],
+            [None, 0, 0, None, None],
+            [0, None, None, None, None],
+            [0, None, None, None, None],
+            [0, None, None, None, None],
+            [None, 0, 0, None, None],
+            [0, None, None, None, None],
+            [0, None, None, None, None],
+            [0, None, None, None, None],
+            [0, None, None, None, None],
+            [None, 0, 0, None, None],
+            [0, None, None, None, None],
+            [0, None, None, None, None],
+            [0, None, None, None, None],
+        ]
 
         pygame.mixer.music.load('GAME_FIGHT.mp3')
         pygame.mixer.music.play()
-        pygame.display.set_caption("My Game")
 
         self.bg = Background('фон-зал суда.jpg', [0, 0])
         self.bg = pygame.transform.scale(
@@ -100,42 +107,82 @@ class Level1:
             center=(self.WIDTH * 0.45 + self.WIDTH // 4, self.WIDTH // 2 - self.WIDTH * 0.1))
 
     def start_level(self):
-        while self.running:
-            if self.start:
-                self.screen.fill(self.BLACK)
-                self.clock.tick(self.FPS)
-                self.screen.blit(self.bg, self.bg_rect)
-                self.screen.blit(self.old_man, self.old_man_rect)
-                pygame.draw.line(self.screen, self.BLACK,
-                                 [0, self.HEIGHT * 0.94],
-                                 [self.WIDTH, self.HEIGHT * 0.94], int(self.HEIGHT * 0.14))
-                self.rules(self.screen)
-                pygame.display.flip()
-                time.sleep(3)
-                pygame.draw.line(self.screen, self.BLACK,
-                                 [0, self.HEIGHT * 0.94],
-                                 [self.WIDTH, self.HEIGHT * 0.94], int(self.HEIGHT * 0.12))
-                self.judge_1(self.screen)
+        self.screen.fill(self.BLACK)
+        self.clock.tick(self.FPS)
+        self.screen.blit(self.bg, self.bg_rect)
+        self.screen.blit(self.old_man, self.old_man_rect)
+        pygame.draw.line(self.screen, self.BLACK,
+                         [0, self.HEIGHT * 0.94],
+                         [self.WIDTH, self.HEIGHT * 0.94], int(self.HEIGHT * 0.14))
+        self.rules(self.screen)
+        pygame.display.flip()
+        time.sleep(5)
+        pygame.draw.line(self.screen, self.BLACK,
+                         [0, self.HEIGHT * 0.94],
+                         [self.WIDTH, self.HEIGHT * 0.94], int(self.HEIGHT * 0.12))
+        self.judge_1(self.screen)
 
-                pygame.display.flip()
+        pygame.display.flip()
 
-                self.show_text('Кто выиграет в споре - получит свободу и право сыграть в Великий лабиринт.')
-
-                self.start = False
-
+        self.show_text('Кто выиграет в споре - получит свободу и право сыграть в Великий лабиринт.')
+        while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.running = False
+                    exit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
-                        self.speak(self.frase)
-                        self.frase += 1
+                        try:
+                            if self.SCORES[self.frase][0] is not None:
+                                code = self.speak(self.frase)
+                                if code == 0:
+                                    return self.finish_level()
+                                self.frase += 1
+                        except IndexError:
+                            return self.finish_level()
                     elif event.key == pygame.K_1:
-                        if self.SCORES[self.frase][0]:
-                            self.score += self.SCORES[self.frase][0]
-                            self.speak(self.frase)
-                            self.frase += 1
-                            print(self.score)
+                        try:
+                            if self.SCORES[self.frase][1] is not None:
+                                self.choice = 1
+                                self.score += self.SCORES[self.frase][1]
+                                code = self.speak(self.frase)
+                                if code == 0:
+                                    return self.finish_level()
+                                self.frase += 1
+                        except IndexError:
+                            return self.finish_level()
+                    elif event.key == pygame.K_2:
+                        try:
+                            if self.SCORES[self.frase][2] is not None:
+                                self.choice = 2
+                                self.score += self.SCORES[self.frase][2]
+                                code = self.speak(self.frase)
+                                if code == 0:
+                                    return self.finish_level()
+                                self.frase += 1
+                        except IndexError:
+                            return self.finish_level()
+                    elif event.key == pygame.K_3:
+                        try:
+                            if self.SCORES[self.frase][3] is not None:
+                                self.choice = 3
+                                self.score += self.SCORES[self.frase][3]
+                                code = self.speak(self.frase)
+                                if code == 0:
+                                    return self.finish_level()
+                                self.frase += 1
+                        except IndexError:
+                            return self.finish_level()
+                    elif event.key == pygame.K_4:
+                        try:
+                            if self.SCORES[self.frase][4] is not None:
+                                self.score += self.SCORES[self.frase][4]
+                                self.choice = 4
+                                code = self.speak(self.frase)
+                                if code == 0:
+                                    return self.finish_level()
+                                self.frase += 1
+                        except IndexError:
+                            return self.finish_level()
 
     def judge_1(self, screen):
         font = pygame.font.Font(None, int(self.HEIGHT * 0.04))
@@ -153,47 +200,69 @@ class Level1:
         screen.blit(text, (text_x, text_y))
 
     def show_text(self, text):
-        a = text
-        a = list(a)
-        count = 0
-        if len(a) + 1 > 110:
-            for i in range(len(a) - 51):
-                font = pygame.font.Font(None, int(self.WIDTH * 0.028))
-                t = a[0:count]
-                count += 1
-                text = font.render(''.join(t), True, (255, 255, 255))
-                text_x = self.WIDTH * 0.04
-                text_y = self.HEIGHT * 0.92
-                self.screen.blit(text, (text_x, text_y))
-                self.clock.tick(30)
-                pygame.display.flip()
-            for i in range(len(a) - 50, len(a) + 3):
-                font = pygame.font.Font(None, int(self.WIDTH * 0.028))
-                t = a[len(a) - 52:count]
-                count += 1
-                text = font.render(''.join(t), True, (255, 255, 255))
-                text_x = self.WIDTH * 0.04
-                text_y = self.HEIGHT * 0.96
-                self.screen.blit(text, (text_x, text_y))
-                self.clock.tick(30)
-                pygame.display.flip()
+        try:
+            text = text.split('%/%')[self.choice - 1]
+        except IndexError:
+            text = text.split('%/%')[-1]
+        a = list(text)
+        new = ''
+        new2 = ''
+        if len(a) > 140:
+            font_size = int(self.WIDTH * 0.024)
+            first_line = 0.92
+            second_line = 0.945
+            third_line = 0.97
+        elif len(a) > 70:
+            font_size = int(self.WIDTH * 0.028)
+            first_line = 0.92
+            second_line = 0.96
         else:
-            for i in range(len(a) + 1):
-                font = pygame.font.Font(None, int(self.WIDTH * 0.028))
-                t = a[0:count]
-                count += 1
-                text = font.render(''.join(t), True, (255, 255, 255))
-                text_x = self.WIDTH * 0.04
-                text_y = self.HEIGHT * 0.92
-                self.screen.blit(text, (text_x, text_y))
-                self.clock.tick(30)
-                pygame.display.flip()
+            font_size = int(self.WIDTH * 0.03)
+            first_line = 0.92
+        font = pygame.font.Font(None, font_size)
+        for count in range(len(a) + 1):
+            if count > 70:
+                if count > 140:
+                    if a[count - 1] == ' ' and new2 == '':
+                        new2 = count
+                    if new2 != '':
+                        t = a[new2:count]
+                        text_y = self.HEIGHT * third_line
+                    else:
+                        t = a[new:count]
+                        text_y = self.HEIGHT * second_line
+                else:
+                    if a[count - 1] == ' ' and new == '':
+                        new = count
+                    if new != '':
+                        t = a[new:count]
+                        text_y = self.HEIGHT * second_line
+                    else:
+                        t = a[:count]
+                        text_y = self.HEIGHT * first_line
+            else:
+                t = a[:count]
+                text_y = self.HEIGHT * first_line
+            text = font.render(''.join(t), True, (255, 255, 255))
+            text_x = self.WIDTH * 0.04
+            print_sound = pygame.mixer.Sound('print.wav')
+            pygame.mixer.set_num_channels(100)
+            pygame.mixer.find_channel().play(print_sound)
+            self.screen.blit(text, (text_x, text_y))
+            if a[count - 1] == ' ':
+                self.clock.tick(10)
+            elif count % 2 == 0:
+                self.clock.tick(25)
+            pygame.display.flip()
 
     def speak(self, frase):
-        element = self.text_lvl_1[frase]
+        try:
+            element = self.text_lvl_1[frase]
+        except IndexError:
+            return 0
         element = element.split('*')
         if element[0] == 'противник':
-            self.screen.blit(bg_1, bg_1_rect)
+            self.screen.blit(self.bg_1, self.bg_1_rect)
             self.screen.blit(self.enemy_1_common, self.enemy_1_common_rect)
             pygame.draw.line(self.screen, self.BLACK,
                              [0, self.HEIGHT * 0.94],
@@ -212,9 +281,40 @@ class Level1:
                              [0, self.HEIGHT * 0.94],
                              [self.WIDTH, self.HEIGHT * 0.94], int(self.HEIGHT * 0.12))
             font = pygame.font.Font(None, int(self.WIDTH * 0.03))
-            text = font.render("ГГ:", True, (255, 127, 80))
+            text = font.render("Вы:", True, (255, 127, 80))
             text_x = self.WIDTH * 0.04
             text_y = self.HEIGHT * 0.88
             self.screen.blit(text, (text_x, text_y))
             pygame.display.flip()
             self.show_text(element[-1])
+
+    def finish_level(self):
+        self.screen.blit(self.bg, self.bg_rect)
+        self.screen.blit(self.old_man, self.old_man_rect)
+        pygame.draw.line(self.screen, self.BLACK,
+                         [0, self.HEIGHT * 0.94],
+                         [self.WIDTH, self.HEIGHT * 0.94], int(self.HEIGHT * 0.12))
+        self.judge_1(self.screen)
+        pygame.display.flip()
+        self.show_text('СТОП! Спор окончен. Вы победили.')
+        time.sleep(2)
+        la = pygame.Surface((self.WIDTH, self.HEIGHT), masks=(0, 0, 0))
+        la_rect = la.get_rect(
+            center=(self.WIDTH // 2, self.HEIGHT // 2))
+        for i in range(1, 101):
+            la.set_alpha(5)
+            pygame.draw.line(self.screen, self.BLACK,
+                             [0, self.HEIGHT * 0.94],
+                             [self.WIDTH, self.HEIGHT * 0.94], int(self.HEIGHT * 0.12))
+            self.judge_1(self.screen)
+            font_size = int(self.WIDTH * 0.03)
+            font = pygame.font.Font(None, font_size)
+            text = font.render('СТОП! Спор окончен. Вы победили.', True, (255, 255, 255))
+            text_y = self.HEIGHT * 0.92
+            text_x = self.WIDTH * 0.04
+            self.screen.blit(text, (text_x, text_y))
+            self.screen.blit(la, la_rect)
+            pygame.display.flip()
+            pygame.mixer.music.set_volume(1 - 0.01 * i)
+            time.sleep(0.03)
+        time.sleep(1)
