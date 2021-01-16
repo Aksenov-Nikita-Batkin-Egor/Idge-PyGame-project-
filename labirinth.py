@@ -1,11 +1,12 @@
 # coding: utf8
 import pygame
-from pygame import time
+import time
 
-WINDOW_SIZE = WINDOW_WIDTH, WINDOW_HEIGHT = 480, 480
-FPS = 15
-TILE_SIZE = 32
-ENEMY_EVENT_TYPE = 30
+
+WINDOW_SIZE = WINDOW_WIDTH, WINDOW_HEIGHT = None, None
+FPS = None
+TILE_SIZE = None
+ENEMY_EVENT_TYPE = None
 
 
 class Labyrinth:
@@ -46,7 +47,7 @@ class Labyrinth:
             for dx, dy in (1, 0), (0, 1), (-1, 0), (0, -1):
                 next_x, next_y = x + dx, y + dy
                 if 0 <= next_x < self.width and 0 <= next_y < self.height and \
-                   self.is_free((next_x, next_y)) and distance[next_y][next_x] == INF:
+                    self.is_free((next_x, next_y)) and distance[next_y][next_x] == INF:
                     distance[next_y][next_x] = distance[y][x] + 1
                     prev[next_y][next_x] = (x, y)
                     queue.append((next_x, next_y))
@@ -76,7 +77,7 @@ class Hero:
 class Enemy:
     def __init__(self, position):
         self.x, self.y = position
-        self.delay = 100
+        self.delay = 10
         pygame.time.set_timer(ENEMY_EVENT_TYPE, self.delay)
 
     def get_position(self):
@@ -119,10 +120,43 @@ class Game:
                                                       self.hero.get_position())
         self.enemy.set_position(next_position)
 
+    def check_win(self):
+        return self.labyrinth.get_tile_id(self.hero.get_position()) == self.labyrinth.finish_tile
 
-def main():
+    def check_lose(self):
+        return self.hero.get_position() == self.enemy.get_position()
+
+
+class Music:
+    def __init__(self, name):
+        self.music = pygame.mixer.Sound(name)
+
+    def play(self):
+        self.music.play()
+
+
+def show_message(screen, message):
+    font = pygame.font.Font(None, 50)
+    text = font.render(message, True, (50, 70, 0))
+    text_x = WINDOW_WIDTH // 2 - text.get_width() // 2
+    text_y = WINDOW_HEIGHT // 2 - text.get_height() // 2
+    text_w = text.get_width()
+    text_h = text.get_height()
+    pygame.draw.rect(screen, (200, 150, 50), (text_x - 10, text_y - 10,
+                                              text_w + 20, text_h + 20))
+    screen.blit(text, (text_x, text_y))
+
+
+def main(width, height, score):
+    global WINDOW_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT, FPS, TILE_SIZE, ENEMY_EVENT_TYPE
+    WINDOW_SIZE = WINDOW_WIDTH, WINDOW_HEIGHT = width, height
+    FPS = 15
+    TILE_SIZE = height // 14.9
+    ENEMY_EVENT_TYPE = 30
     pygame.init()
     screen = pygame.display.set_mode(WINDOW_SIZE)
+
+    sound = Music('vi-ka.mp3')
 
     labyrinth = Labyrinth('simple_map.txt', [0, 2], 2)
     hero = Hero((7, 7))
@@ -130,20 +164,28 @@ def main():
     game = Game(labyrinth, hero, enemy)
 
     clock = pygame.time.Clock()
-    running = True
-    while running:
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
-            if event.type == ENEMY_EVENT_TYPE:
-                game.move_enemy()
-        game.update_hero()
-        screen.fill((0, 0, 0))
+                pygame.quit()
+        game.move_enemy()
+        if True:
+            game.update_hero()
+            screen.fill((0, 0, 0))
         game.render(screen)
+        if game.check_win():
+            show_message(screen, "YOU WON!")
+            sound.play()
+            pygame.display.flip()
+            time.sleep(5)
+            pygame.mixer.fadeout(5)
+            return score + 1000
+        if game.check_lose():
+            show_message(screen, "YOU LOST!")
+            sound.play()
+            pygame.display.flip()
+            time.sleep(5)
+            pygame.mixer.fadeout(5)
+            return score
         pygame.display.flip()
         clock.tick(FPS)
-    pygame.quit()
-
-
-if __name__ == "__main__":
-    main()
