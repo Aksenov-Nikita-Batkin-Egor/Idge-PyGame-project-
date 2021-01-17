@@ -11,6 +11,7 @@ ENEMY_EVENT_TYPE = None
 
 class Labyrinth:
     def __init__(self, filename, free_tiles, finish_tile):
+         # создание лабиринта
         self.map = []
         with open(f"{filename}") as input_file:
             for line in input_file:
@@ -22,6 +23,7 @@ class Labyrinth:
         self.finish_tile = finish_tile
 
     def render(self, screen):
+         # отрисовка лабиринта
         colors = {0: (0, 0, 0), 1: (120, 120, 120), 2: (50, 50, 50)}
         for y in range(self.height):
             for x in range(self.width):
@@ -30,12 +32,15 @@ class Labyrinth:
                 screen.fill(colors[self.get_tile_id((x, y))], rect)
 
     def get_tile_id(self, position):
+        # получение значения клетки
         return self.map[position[1]][position[0]]
 
     def is_free(self, position):
+        # проверка на не занятость клетки
         return self.get_tile_id(position) in self.free_tiles
 
     def find_path_step(self, start, target):
+        # поиск кратчайшего пути врага до героя
         INF = 1000
         x, y = start
         distance = [[INF] * self.width for _ in range(self.height)]
@@ -61,36 +66,45 @@ class Labyrinth:
 
 class Hero:
     def __init__(self, position):
+        # задание изначальной позиции герою
         self.x, self.y = position
 
     def get_position(self):
+        # возврат позиции героя
         return self.x, self.y
 
     def set_position(self, position):
+        # задание позиции герою
         self.x, self.y = position
 
     def render(self, screen):
+        # отрисовка героя
         center = self.x * TILE_SIZE + TILE_SIZE // 2, self.y * TILE_SIZE + TILE_SIZE // 2
         pygame.draw.circle(screen, (255, 255, 255), center, TILE_SIZE // 2)
 
 
 class Enemy:
     def __init__(self, position):
+        # задание изначальной позиции врагу, создание таймера
         self.x, self.y = position
         self.delay = 10
         pygame.time.set_timer(ENEMY_EVENT_TYPE, self.delay)
 
     def get_position(self):
+        # возврат позиции врага
         return self.x, self.y
 
     def set_position(self, position):
+        # задание позиции врагу
         self.x, self.y = position
 
     def render(self, screen):
+        # отрисовка врага
         center = self.x * TILE_SIZE + TILE_SIZE // 2, self.y * TILE_SIZE + TILE_SIZE // 2
         pygame.draw.circle(screen, pygame.Color('Red'), center, TILE_SIZE // 2)
 
 
+# класс который совмещает в себе все 3, чтобы можно было начинать игру 1 строкой
 class Game:
     def __init__(self, labyrinth, hero, enemy):
         self.labyrinth = labyrinth
@@ -103,6 +117,7 @@ class Game:
         self.enemy.render(screen)
 
     def update_hero(self):
+        # движение героя
         next_x, next_y = self.hero.get_position()
         if pygame.key.get_pressed()[pygame.K_LEFT]:
             next_x -= 1
@@ -116,25 +131,30 @@ class Game:
             self.hero.set_position((next_x, next_y))
 
     def move_enemy(self):
+        # одвижение врага
         next_position = self.labyrinth.find_path_step(self.enemy.get_position(),
                                                       self.hero.get_position())
         self.enemy.set_position(next_position)
 
     def check_win(self):
+        # проверка выигрыша 
         return self.labyrinth.get_tile_id(self.hero.get_position()) == self.labyrinth.finish_tile
 
     def check_lose(self):
+        # проверка проигрыша
         return self.hero.get_position() == self.enemy.get_position()
 
 
 class Music:
     def __init__(self, name):
+        # инициализация музыки
         self.music = pygame.mixer.Sound(name)
 
     def play(self):
+        # воспроизведение музыки
         self.music.play()
 
-
+# показ сообщения по центру экрана
 def show_message(screen, message):
     font = pygame.font.Font(None, 50)
     text = font.render(message, True, (50, 70, 0))
@@ -146,7 +166,7 @@ def show_message(screen, message):
                                               text_w + 20, text_h + 20))
     screen.blit(text, (text_x, text_y))
 
-
+# основной цикл
 def main(width, height, score):
     global WINDOW_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT, FPS, TILE_SIZE, ENEMY_EVENT_TYPE
     WINDOW_SIZE = WINDOW_WIDTH, WINDOW_HEIGHT = width, height
@@ -155,20 +175,22 @@ def main(width, height, score):
     ENEMY_EVENT_TYPE = 30
     pygame.init()
     screen = pygame.display.set_mode(WINDOW_SIZE)
-
+     # инициализация музыки
     sound = Music('vi-ka.mp3')
-
+     # создание лабиринта
     labyrinth = Labyrinth('simple_map.txt', [0, 2], 2)
     hero = Hero((7, 7))
     enemy = Enemy((7, 1))
     game = Game(labyrinth, hero, enemy)
 
     clock = pygame.time.Clock()
+    # основной цикл программы
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-        game.move_enemy()
+            if event.type == ENEMY_EVENT_TYPE and not game_over:
+                game.move_enemy()
         if True:
             game.update_hero()
             screen.fill((0, 0, 0))
