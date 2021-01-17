@@ -11,7 +11,7 @@ HEIGHT = 1080
 FPS = 30
 frase = 0
 
-
+# класс, создающий задний фон
 class Background(pygame.sprite.Sprite):
     def __init__(self, image_file, location):
         pygame.sprite.Sprite.__init__(self)
@@ -22,6 +22,7 @@ class Background(pygame.sprite.Sprite):
 
 class Level2:
     def __init__(self, width, height, screen, score):
+        # созданине экрана, переменных
         self.screen = screen
         self.WIDTH = width
         self.HEIGHT = height
@@ -33,12 +34,12 @@ class Level2:
         self.clock = pygame.time.Clock()
         self.running = True
         self.start = True
-
+        # включение музыки
         pygame.mixer.music.load('chill_music.mp3')
         pygame.mixer.music.play()
-
+        # инициализация звука дверного звонка
         self.bell = pygame.mixer.Sound('bell.mp3')
-
+        # список, отвечающий за выбор ответа
         self.SCORES = [
             [0, 0, 0, None, None],
             [0, 0, 0, None, None],
@@ -56,7 +57,7 @@ class Level2:
             [0, 0, 0, None, None],
             [0, 0, 0, None, None],
         ]
-
+        # реплики на первом фоне
         self.text_lvl_2 = ['игрок*=)*Как же хорошо поспал. Такой сон...',
                            'игрок*=/*А почему делить на 0 нельзя?... Ладно, пойду кофе сделаю себе.',
                            'игра*игра',
@@ -72,7 +73,7 @@ class Level2:
                            'игрок*=(*Но почему?',
                            'друг*=(*У меня пистолет.',
                            'игрок*=(*Ладно, пошли.']
-
+        # реплики на втором фоне
         self.text_lvl_2_2 = ['игрок*=)*1 - Молча идти / 2 - А зачем я вам нужен?',
                              'друг*=)*На нас подали иск, а вы в прошлом были лучшим адвокатом этой страны. '
                              'Поэтому нам нужна ваша помощь.',
@@ -80,7 +81,7 @@ class Level2:
                              'друг*=)*Да, сколько хотите?',
                              'игрок*=/*1 - 100.000 / 2 - 1.000.000.',
                              'друг*=)*Ладно.']
-
+        # создание спрайтов
         self.bg = Background('фон-дом.jpg', [0, 0])
         self.bg = pygame.transform.scale(
             self.bg.image, (2000,
@@ -145,7 +146,7 @@ class Level2:
             center=(1500, 600))
 
         self.fone = 1
-
+    # функция выводящая текст
     def show_text(self, text):
         try:
             text = text.split('%/%')[self.choice - 1]
@@ -201,7 +202,7 @@ class Level2:
             elif count % 2 == 0:
                 self.clock.tick(25)
             pygame.display.flip()
-
+    # функция передающая def show_text текст, который надо вывести
     def speak(self, screen, frase, bag):
         if bag == 1:
             element = self.text_lvl_2[frase]
@@ -300,7 +301,7 @@ class Level2:
                                  [self.WIDTH, self.HEIGHT * 0.94], int(self.HEIGHT * 0.12))
                 pygame.display.flip()
                 self.bell.play()
-
+    # функция, создащая уровень и переключающая фразы
     def start_level(self):
         while self.running:
             if self.start:
@@ -378,7 +379,7 @@ class Level2:
                                 self.frase += 1
                         except IndexError:
                             return self.finish_level()
-
+    # функция, завершающая уровень
     def finish_level(self):
         self.screen.blit(self.bg_1, self.bg_1_rect)
         pygame.draw.line(self.screen, self.BLACK,
