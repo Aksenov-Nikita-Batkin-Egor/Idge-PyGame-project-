@@ -3,6 +3,7 @@ import pygame
 import time
 
 
+# класс, создающий задний фон
 class Background(pygame.sprite.Sprite):
     def __init__(self, image_file, location):
         super().__init__()
@@ -13,36 +14,41 @@ class Background(pygame.sprite.Sprite):
 
 class Level1:
     def __init__(self, width, height, screen, score):
+        # созданине экрана, переменных
         self.screen = screen
         self.WIDTH = width
         self.HEIGHT = height
         self.BLACK = (0, 0, 0)
         self.FPS = 30
-        self.frase = 0
-        self.score = score
-        self.choice = 0
+        self.frase = 0  # Номер реплики
+        self.score = score  # Очки
+        self.choice = 0  # Выбор варианта клавишами 1-4
         self.clock = pygame.time.Clock()
 
-        self.text_lvl_1 = ['противник*=)*Делить на ноль можно.',
-                           'игрок*=)*1 - Согласен. / 2 - Нельзя.',
-                           'противник*=)*Что ж, ты проиграл.%/%Нет, можно.',
-                           'игрок*=(*Дурак! Нельзя!',
-                           'противник*=)*Интересно, почему? 6 % 3 = 2; 6 % 1 = 6; 6 % 0.0001 = 60000. '
+        # реплики 1 уровня
+        self.text_lvl_1 = ['противник*->*Делить на ноль можно.',
+                           'игрок*=|*1 - Согласен. / 2 - Нельзя.',
+                           'противник**Что ж, ты проиграл.%/%Нет, можно.',
+                           'игрок**Дурак! Нельзя!',
+                           'противник*=|*Интересно, почему? 6 % 3 = 2; 6 % 1 = 6; 6 % 0.0001 = 60000. '
                            'Чем меньше делитель, тем больше будет частное. Ну, что скажешь?',
-                           'игрок*=)*1 - Выучил правило из 5 класса и крутой? / 2 - Рассказать правило.',
-                           'противник*=)*Ясно. Давно стал очевиден один факт.',
-                           '...',
-                           'противник*=)*Ты так думаешь лишь потому, что тебе так сказали. '
+                           'игрок*=|*1 - Выучил правило из 5 класса и крутой? / 2 - Рассказать правило.',
+                           'противник**Ясно. Давно стал очевиден один факт.',
+                           'игрок*=|*...',
+                           'противник*->*Ты так думаешь лишь потому, что тебе так сказали. '
                            'Своей головой ты думать видимо не можешь. Ты же знаешь, что если '
                            'любое число разделить на себя, то получится единица? Следовательно: 0 / 0 = 1.',
-                           'игрок*=(*Единица - твоя оценка по матеше.',
-                           'игрок*=(*1 - Привести пример. / 2 - Сказать правило',
-                           'игрок*=(*Так, придётся на яблоках объяснять. Итак, у тебя есть 10 яблок и 5 друзей. '
+                           'игрок**Единица - твоя оценка по матеше.',
+                           'игрок*=|*1 - Привести пример. / 2 - Сказать правило',
+                           'игрок*||*Так, придётся на яблоках объяснять. Итак, у тебя есть 10 яблок и 5 друзей. '
                            'Ты такой крутой даёшь каждому по 2 яблока, чтобы было поровну. '
                            'Ты 10 / 5 и получаешь два. Вот для тебя задачка: '
                            'сколько будет у тебя друзей, если яблок 0?%/%(Рассказываю правило...)',
-                           'противник*=)*Нуууу... 10%/%Ну и что. Ты просто повторяешься.',
-                           'игрок*=)*Ты меня просто вымораживаешь своей тупостью.']
+                           'противник*=|*Нуууу... 10%/%Ну и что. Ты просто повторяешься.',
+                           'игрок**Ты меня просто вымораживаешь своей тупостью.']
+
+        # Возможность нажимать клавиши управления и выдаваемые очки ([0] - пробел, [1] - клавиша "1",
+        # [2] - клавиша "2", [3] - клавиша "3", [4] - клавиша "4". None - нельзя нажать, Число - кол-во очков.
         self.SCORES = [
             [0, None, None, None, None],
             [0, None, None, None, None],
@@ -61,10 +67,12 @@ class Level1:
             [0, None, None, None, None],
         ]
 
+        # Включение музыки
         pygame.mixer.music.set_volume(1)
         pygame.mixer.music.load('GAME_FIGHT.mp3')
         pygame.mixer.music.play()
 
+        # Создание спрайтов
         self.bg = Background('фон-зал суда.jpg', [0, 0])
         self.bg = pygame.transform.scale(
             self.bg.image, (self.WIDTH,
@@ -91,7 +99,21 @@ class Level1:
             self.main_common.image, (int(self.WIDTH * 0.5),
                                      int(self.WIDTH * 0.5)))
         self.main_common_rect = self.main_common.get_rect(
-            center=(self.WIDTH // 4 - 40, self.HEIGHT * 3 // 4 - 50))
+            center=(self.WIDTH * 0.001 + self.WIDTH // 4, self.WIDTH // 2 - self.WIDTH * 0.1))
+
+        self.main_list = Background('main_list.PNG', [0, 0])
+        self.main_list = pygame.transform.scale(
+            self.main_list.image, (int(self.WIDTH * 0.5),
+                                   int(self.WIDTH * 0.5)))
+        self.main_list_rect = self.main_list.get_rect(
+            center=(self.WIDTH * 0.001 + self.WIDTH // 4, self.WIDTH // 2 - self.WIDTH * 0.1))
+
+        self.main_omg = Background('main_omg.PNG', [0, 0])
+        self.main_omg = pygame.transform.scale(
+            self.main_omg.image, (int(self.WIDTH * 0.5),
+                                  int(self.WIDTH * 0.4)))
+        self.main_omg_rect = self.main_omg.get_rect(
+            center=(self.WIDTH * 0.001 + self.WIDTH // 4, self.WIDTH // 2 - self.WIDTH * 0.1))
 
         self.enemy_1_common = Background('common-enemy.PNG', [0, 0])
         self.enemy_1_common = pygame.transform.scale(
@@ -100,13 +122,42 @@ class Level1:
         self.enemy_1_common_rect = self.enemy_1_common.get_rect(
             center=(self.WIDTH * 0.45 + self.WIDTH // 4, self.WIDTH // 2 - self.WIDTH * 0.1))
 
-        self.old_man = Background('judge-smiling.png', [0, 0])
+        self.enemy_1_resolute = Background('boom-enemy.PNG', [0, 0])
+        self.enemy_1_resolute = pygame.transform.scale(
+            self.enemy_1_resolute.image, (int(self.WIDTH * 0.5),
+                                          int(self.WIDTH * 0.5)))
+        self.enemy_1_resolute_rect = self.enemy_1_resolute.get_rect(
+            center=(self.WIDTH * 0.45 + self.WIDTH // 4, self.WIDTH // 2 - self.WIDTH * 0.1))
+
+        self.enemy_1_pointing = Background('pointing-enemy.PNG', [0, 0])
+        self.enemy_1_pointing = pygame.transform.scale(
+            self.enemy_1_pointing.image, (int(self.WIDTH * 0.5),
+                                          int(self.WIDTH * 0.5)))
+        self.enemy_1_pointing_rect = self.enemy_1_pointing.get_rect(
+            center=(self.WIDTH * 0.45 + self.WIDTH // 4, self.WIDTH // 2 - self.WIDTH * 0.1))
+
+        self.enemy_1_evil = Background('omg-enemy.PNG', [0, 0])
+        self.enemy_1_evil = pygame.transform.scale(
+            self.enemy_1_evil.image, (int(self.WIDTH * 0.5),
+                                      int(self.WIDTH * 0.5)))
+        self.enemy_1_evil_rect = self.enemy_1_evil.get_rect(
+            center=(self.WIDTH * 0.45 + self.WIDTH // 4, self.WIDTH // 2 - self.WIDTH * 0.1))
+
+        self.old_man = Background('judge-serious.png', [0, 0])
         self.old_man = pygame.transform.scale(
             self.old_man.image, (int(self.WIDTH * 0.5),
                                  int(self.WIDTH * 0.5)))
         self.old_man_rect = self.old_man.get_rect(
             center=(self.WIDTH * 0.45 + self.WIDTH // 4, self.WIDTH // 2 - self.WIDTH * 0.1))
 
+        self.old_man2 = Background('judge-smiling.png', [0, 0])
+        self.old_man2 = pygame.transform.scale(
+            self.old_man2.image, (int(self.WIDTH * 0.5),
+                                  int(self.WIDTH * 0.5)))
+        self.old_man2_rect = self.old_man2.get_rect(
+            center=(self.WIDTH * 0.45 + self.WIDTH // 4, self.WIDTH // 2 - self.WIDTH * 0.1))
+
+    # Запуск уровня и обработка всех событий
     def start_level(self):
         self.screen.fill(self.BLACK)
         self.clock.tick(self.FPS)
@@ -126,6 +177,7 @@ class Level1:
         pygame.display.flip()
 
         self.show_text('Кто выиграет в споре - получит свободу и право сыграть в Великий лабиринт.')
+        # Основной цикл, обработка событий
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -185,6 +237,7 @@ class Level1:
                         except IndexError:
                             return self.finish_level()
 
+    # Подпись "Судья" для реплик судьи
     def judge_1(self, screen):
         font = pygame.font.Font(None, int(self.HEIGHT * 0.04))
         text = font.render("Судья:", True, (255, 127, 80))
@@ -192,6 +245,7 @@ class Level1:
         text_y = self.HEIGHT * 0.88
         screen.blit(text, (text_x, text_y))
 
+    # Вывод правил управления игрой
     def rules(self, screen):
         font = pygame.font.Font(None, int(self.WIDTH * 0.023))
         text = font.render("Чтобы выбрать действие - нажмите 1, 2, 3 или 4, а чтобы "
@@ -200,6 +254,7 @@ class Level1:
         text_y = self.HEIGHT * 0.88
         screen.blit(text, (text_x, text_y))
 
+    # Функция, выводящая текст (например, текст реплик)
     def show_text(self, text):
         try:
             text = text.split('%/%')[self.choice - 1]
@@ -248,7 +303,7 @@ class Level1:
             text_x = self.WIDTH * 0.04
             print_sound = pygame.mixer.Sound('print.wav')
             pygame.mixer.set_num_channels(100)
-            pygame.mixer.find_channel().play(print_sound)
+            pygame.mixer.find_channel(True).play(print_sound)
             self.screen.blit(text, (text_x, text_y))
             if a[count - 1] == ' ':
                 self.clock.tick(10)
@@ -256,6 +311,7 @@ class Level1:
                 self.clock.tick(25)
             pygame.display.flip()
 
+    # Функция, запускающая реплики каждого героя
     def speak(self, frase):
         try:
             element = self.text_lvl_1[frase]
@@ -264,7 +320,14 @@ class Level1:
         element = element.split('*')
         if element[0] == 'противник':
             self.screen.blit(self.bg_1, self.bg_1_rect)
-            self.screen.blit(self.enemy_1_common, self.enemy_1_common_rect)
+            if element[1] == '->':
+                self.screen.blit(self.enemy_1_pointing, self.enemy_1_pointing_rect)
+            elif element[1] == '=|':
+                self.screen.blit(self.enemy_1_common, self.enemy_1_common_rect)
+            elif element[1] == ';|':
+                self.screen.blit(self.enemy_1_evil, self.enemy_1_evil_rect)
+            else:
+                self.screen.blit(self.enemy_1_resolute, self.enemy_1_resolute_rect)
             pygame.draw.line(self.screen, self.BLACK,
                              [0, self.HEIGHT * 0.94],
                              [self.WIDTH, self.HEIGHT * 0.94], int(self.HEIGHT * 0.12))
@@ -277,7 +340,12 @@ class Level1:
             self.show_text(element[-1])
         else:
             self.screen.blit(self.bg_2, self.bg_2_rect)
-            self.screen.blit(self.main_common, self.main_common_rect)
+            if element[1] == '=|':
+                self.screen.blit(self.main_common, self.main_common_rect)
+            elif element[1] == '||':
+                self.screen.blit(self.main_list, self.main_list_rect)
+            else:
+                self.screen.blit(self.main_omg, self.main_omg_rect)
             pygame.draw.line(self.screen, self.BLACK,
                              [0, self.HEIGHT * 0.94],
                              [self.WIDTH, self.HEIGHT * 0.94], int(self.HEIGHT * 0.12))
@@ -289,9 +357,10 @@ class Level1:
             pygame.display.flip()
             self.show_text(element[-1])
 
+    # Функция, завершающая уровень, выводящая результат суда
     def finish_level(self):
         self.screen.blit(self.bg, self.bg_rect)
-        self.screen.blit(self.old_man, self.old_man_rect)
+        self.screen.blit(self.old_man2, self.old_man2_rect)
         pygame.draw.line(self.screen, self.BLACK,
                          [0, self.HEIGHT * 0.94],
                          [self.WIDTH, self.HEIGHT * 0.94], int(self.HEIGHT * 0.12))
@@ -302,6 +371,7 @@ class Level1:
         la = pygame.Surface((self.WIDTH, self.HEIGHT), masks=(0, 0, 0))
         la_rect = la.get_rect(
             center=(self.WIDTH // 2, self.HEIGHT // 2))
+        # Затемнение экрана и приглушение музыки
         for i in range(1, 101):
             la.set_alpha(5)
             pygame.draw.line(self.screen, self.BLACK,
@@ -319,4 +389,6 @@ class Level1:
             pygame.mixer.music.set_volume(1 - 0.01 * i)
             time.sleep(0.03)
         time.sleep(1)
+        pygame.mixer.music.stop()
+        # Возврат общего кол-ва очков
         return self.score

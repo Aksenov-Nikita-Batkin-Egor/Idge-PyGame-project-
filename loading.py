@@ -1,0 +1,80 @@
+import pygame
+
+
+def move(c, v, r, m):
+    # движение шариков
+    c += v
+    if c < r:
+        c, v = r, -v
+    if c > m - r:
+        c, v = m - r, -v
+    return c, v
+
+
+def main(window, width, height):
+    clock = pygame.time.Clock()
+    # создание шариков
+    x1, y1, r1, mx1, my1 = 200, 200, 50, 2, 0.5
+    x2, y2, r2, mx2, my2 = 300, 200, 50, -1, -1.5
+    x3, y3, r3, mx3, my3 = 500, 500, 40, 1, 1.5
+    count = 0
+    run = True
+    while run:
+        clock.tick(60)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+        x1, mx1 = move(x1, mx1, r1, width)
+        y1, my1 = move(y1, my1, r1, height)
+        x2, mx2 = move(x2, mx2, r2, width)
+        y2, my2 = move(y2, my2, r2, height)
+        x3, mx3 = move(x3, mx3, r3, width)
+        y3, my3 = move(y3, my3, r3, height)
+
+        v1 = pygame.math.Vector2(x1, y1)
+        v2 = pygame.math.Vector2(x2, y2)
+        v3 = pygame.math.Vector2(x3, y3)
+        # отработка столкновение 2 и 1 шариков
+        if v1.distance_to(v2) < r1 + r2 - 2:
+            nv = v2 - v1
+            m1 = pygame.math.Vector2(mx1, my1).reflect(nv)
+            m2 = pygame.math.Vector2(mx2, my2).reflect(nv)
+            mx1, my1 = m1.x, m1.y
+            mx2, my2 = m2.x, m2.y
+        # отработка столкновение 3 и 1 шариков
+        elif v1.distance_to(v3) < r1 + r3 - 2:
+            nv = v3 - v1
+            m1 = pygame.math.Vector2(mx1, my1).reflect(nv)
+            m2 = pygame.math.Vector2(mx3, my3).reflect(nv)
+            mx1, my1 = m1.x, m1.y
+            mx3, my3 = m2.x, m2.y
+        # отработка столкновение 3 и 2 шариков
+        elif v1.distance_to(v3) < r2 + r3 - 2:
+            nv = v3 - v2
+            m1 = pygame.math.Vector2(mx2, my2).reflect(nv)
+            m2 = pygame.math.Vector2(mx3, my3).reflect(nv)
+            mx2, my2 = m1.x, m1.y
+            mx3, my3 = m2.x, m2.y
+
+        window.fill((0, 0, 0))
+        # рисование шариков
+        pygame.draw.circle(window, (255, 255, 255), (round(x1), round(y1)), r1)
+        pygame.draw.circle(window, (255, 255, 255), (round(x2), round(y2)), r2)
+        pygame.draw.circle(window, (255, 255, 255), (round(x3), round(y3)), r3)
+        # вывод текста
+        font = pygame.font.Font(None, 50)
+        text = font.render("ЗАГРУЗКА", True, (200, 255, 0))
+        text_x = width // 2 - text.get_width() // 2
+        text_y = height // 2 - text.get_height() // 2
+        text_w = text.get_width()
+        text_h = text.get_height()
+        window.blit(text, (text_x, text_y))
+        pygame.draw.rect(window, (200, 255, 0), (text_x - 10, text_y - 10,
+                                                 text_w + 20, text_h + 20), 3)
+
+        pygame.display.flip()
+        count += 1
+        # отсчёт времение с помощью количества повторения цикла
+        if count == 200:
+            run = False

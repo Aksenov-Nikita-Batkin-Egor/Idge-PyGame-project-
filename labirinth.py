@@ -2,14 +2,16 @@
 import pygame
 import time
 
-
+# Создание глобальных переменных
 WINDOW_SIZE = WINDOW_WIDTH, WINDOW_HEIGHT = None, None
 FPS = None
 TILE_SIZE = None
 ENEMY_EVENT_TYPE = None
 
 
+# Класс, отвечающий за игровое поле
 class Labyrinth:
+    # Инициализация, создание игрового поля
     def __init__(self, filename, free_tiles, finish_tile):
         self.map = []
         with open(f"{filename}") as input_file:
@@ -36,9 +38,9 @@ class Labyrinth:
         return self.get_tile_id(position) in self.free_tiles
 
     def find_path_step(self, start, target):
-        INF = 1000
+        inf = 1000
         x, y = start
-        distance = [[INF] * self.width for _ in range(self.height)]
+        distance = [[inf] * self.width for _ in range(self.height)]
         distance[y][x] = 0
         prev = [[None] * self.width for _ in range(self.height)]
         queue = [(x, y)]
@@ -47,12 +49,12 @@ class Labyrinth:
             for dx, dy in (1, 0), (0, 1), (-1, 0), (0, -1):
                 next_x, next_y = x + dx, y + dy
                 if 0 <= next_x < self.width and 0 <= next_y < self.height and \
-                    self.is_free((next_x, next_y)) and distance[next_y][next_x] == INF:
+                        self.is_free((next_x, next_y)) and distance[next_y][next_x] == inf:
                     distance[next_y][next_x] = distance[y][x] + 1
                     prev[next_y][next_x] = (x, y)
                     queue.append((next_x, next_y))
         x, y = target
-        if distance[y][x] == INF or start == target:
+        if distance[y][x] == inf or start == target:
             return start
         while prev[y][x] != start:
             x, y = prev[y][x]
@@ -167,7 +169,7 @@ def main(width, height, score):
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                exit()
         game.move_enemy()
         if True:
             game.update_hero()
@@ -175,6 +177,7 @@ def main(width, height, score):
         game.render(screen)
         if game.check_win():
             show_message(screen, "YOU WON!")
+            pygame.mixer.music.set_volume(1)
             sound.play()
             pygame.display.flip()
             time.sleep(5)
@@ -182,6 +185,7 @@ def main(width, height, score):
             return score + 1000
         if game.check_lose():
             show_message(screen, "YOU LOST!")
+            pygame.mixer.music.set_volume(1)
             sound.play()
             pygame.display.flip()
             time.sleep(5)
