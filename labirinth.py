@@ -24,6 +24,7 @@ class Labyrinth:
         self.finish_tile = finish_tile
 
     def render(self, screen):
+        # Создание игрового поля
         colors = {0: (0, 0, 0), 1: (120, 120, 120), 2: (50, 50, 50)}
         for y in range(self.height):
             for x in range(self.width):
@@ -32,12 +33,15 @@ class Labyrinth:
                 screen.fill(colors[self.get_tile_id((x, y))], rect)
 
     def get_tile_id(self, position):
+        # Возврат значения клетки
         return self.map[position[1]][position[0]]
 
     def is_free(self, position):
+        # Проверка клетки на занятость
         return self.get_tile_id(position) in self.free_tiles
 
     def find_path_step(self, start, target):
+        # Поиск кратчайшего пути врага до игрока
         inf = 1000
         x, y = start
         distance = [[inf] * self.width for _ in range(self.height)]
@@ -60,7 +64,7 @@ class Labyrinth:
             x, y = prev[y][x]
         return x, y
 
-
+# Создание, получение позиции, постановка позиции, отрисовка героя
 class Hero:
     def __init__(self, position):
         self.x, self.y = position
@@ -75,7 +79,7 @@ class Hero:
         center = self.x * TILE_SIZE + TILE_SIZE // 2, self.y * TILE_SIZE + TILE_SIZE // 2
         pygame.draw.circle(screen, (255, 255, 255), center, TILE_SIZE // 2)
 
-
+# Создание, получение позиции, постановка позиции, отрисовка врага
 class Enemy:
     def __init__(self, position):
         self.x, self.y = position
@@ -92,7 +96,7 @@ class Enemy:
         center = self.x * TILE_SIZE + TILE_SIZE // 2, self.y * TILE_SIZE + TILE_SIZE // 2
         pygame.draw.circle(screen, pygame.Color('Red'), center, TILE_SIZE // 2)
 
-
+# Отрисовка всех 3-х классов, перемещение героя и врага, проверка на выигрыш/проигрыш
 class Game:
     def __init__(self, labyrinth, hero, enemy):
         self.labyrinth = labyrinth
@@ -128,7 +132,7 @@ class Game:
     def check_lose(self):
         return self.hero.get_position() == self.enemy.get_position()
 
-
+# Создание музыки
 class Music:
     def __init__(self, name):
         self.music = pygame.mixer.Sound(name)
@@ -136,7 +140,7 @@ class Music:
     def play(self):
         self.music.play()
 
-
+# Показ сообщения игроку
 def show_message(screen, message):
     font = pygame.font.Font(None, 50)
     text = font.render(message, True, (50, 70, 0))
@@ -148,7 +152,7 @@ def show_message(screen, message):
                                               text_w + 20, text_h + 20))
     screen.blit(text, (text_x, text_y))
 
-
+# Основной цикл
 def main(width, height, score):
     global WINDOW_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT, FPS, TILE_SIZE, ENEMY_EVENT_TYPE
     WINDOW_SIZE = WINDOW_WIDTH, WINDOW_HEIGHT = width, height
